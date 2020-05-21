@@ -216,13 +216,19 @@ class Stats extends Component {
   }
 
   render() {
-    const classNames = ['tab-pane', 'active'];
-    if (this.props.activeView !== 'stats') classNames.push('hidden');
+    const classNames = ['stats-overlay'];
+    const { doCloseStatsOverlay, activeView } = this.props;
+
+    if (activeView !== 'stats') classNames.push('hidden');
 
     return (
-      <div className={classNames.join(' ')} id="stats-view" aria-expanded="true">
-        <svg className="img-fluid" id="stats-content" width="960" height="500" />
-      </div>
+      <React.Fragment>
+        <div className={activeView !== 'stats' ? 'overlay-mask hidden' : 'overlay-mask'} onClick={doCloseStatsOverlay} />
+        <div className={classNames.join(' ')} id="stats-view" aria-expanded="true">
+          <svg id="stats-content" width="728" height="500" />
+          <button className="btn-overlay-close dark" onClick={doCloseStatsOverlay} />
+        </div>
+      </React.Fragment>
     );
   }
 }

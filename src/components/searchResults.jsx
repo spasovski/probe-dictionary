@@ -39,18 +39,14 @@ class SearchResults extends Component {
 
   render() {
     const parentClasses = ['tab-content'];
-    if (this.props.activeView !== 'default') parentClasses.push('hidden');
 
     return (
       <div className={parentClasses.join(' ')} id="main-tab-holder">
-        <div className="tab-pane active" id="search-results-view">
-          <div className="container table table-sm table-striped table-hover table-bordered border-0 pl-5"
-              id="measurements">
+        <div id="search-results-view">
+          <div id="measurements">
             <SearchResultsTable
-              channelInfo={this.props.channelInfo}
               probes={this.props.probes}
               paginatedProbeKeys={this.state.currentPageProbeKeys}
-              revisions={this.props.revisions}
               selectedChannel={this.props.selectedChannel}
               doExposeProbeDetails={this.props.doExposeProbeDetails}
             />

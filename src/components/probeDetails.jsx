@@ -23,7 +23,12 @@ function getFriendlyRecordingRangeForAllChannels(history) {
   ['nightly', 'beta', 'release'].forEach(channel => {
     const rangeText = getVersionRangeFromHistory(history[channel], channel);
     if (rangeText) {
-      result.push(<p className="history-item" key={channel}>{channel}: {rangeText}</p>);
+      result.push(
+        <dl className="probe-version-item" key={channel}>
+          <dt>{channel}</dt>
+          <dd>{rangeText}</dd>
+        </dl>
+      );
     }
   });
 
@@ -215,18 +220,6 @@ function getInfoList(list) {
   );
 }
 
-function getDatasetInfoRow(datasetInfo) {
-  if (!datasetInfo.length) return null;
-  return (
-    <tr id="detail-datasets-row" title="This lists some of the tools or datasets this probe is available in. Note that this is not a complete list.">
-      <td className="fit pr-2">Available in:</td>
-      <td id="detail-datasets-content" className="grow">
-        {getInfoList(datasetInfo)}
-      </td>
-    </tr>
-  );
-}
-
 function getExtraProbeDetails(probe, probeInfo) {
   const DETAILSLIST = [
     ['kind', 'Kind', ['histogram', 'scalar', 'environment', 'info', 'simpleMeasurements']],
@@ -281,129 +274,129 @@ class ProbeDetails extends Component {
     const populationLabel = probeInfo.optout ? 'release' : 'prerelease';
     const categoryLabels = probeInfo.details.labels;
 
-    const expiryText = [];
+    const expiryText = {};
     for (let [ch, history] of Object.entries(probe.history)) {
       if (!history[0].optout && (ch === 'release')) {
         continue;
       }
 
-      expiryText.push(`${ch} ${getFriendlyExpiryDescriptionForHistory(channelInfo, history, ch)}`);
+      expiryText[ch] = getFriendlyExpiryDescriptionForHistory(channelInfo, history, ch);
     }
 
     const datasetInfo = getDatasetInfo(revisions, channelInfo, selectedProbe.id, probe, channel, probeInfo);
     const bugs = probeInfo['bug_numbers'] || [];
-    const parentClasses = ['container-fluid'];
+    const parentClasses = ['probe-details--content'];
     if (activeView !== 'detail') parentClasses.push('hidden');
+    let expWarning = 'This was computed from the history object in the JSON below.';
+    expWarning += ' If the range seems incorrect please file a bug (link in header).';
 
     return (
-      <div className={parentClasses.join(' ')} id="probe-detail-view">
-        <div id="detail-body">
-          <button type="button" onClick={doCloseProbeDetails} className="close" aria-label="Close" id="close-detail-view">
-            <span aria-hidden="true">×</span>
-          </button>
-          <h2 id="detail-probe-name">{probe.name}</h2>
-          <br />
-          <br />
-          <table className="table table-sm table-striped table-hover table-bordered border-0">
-            <tbody>
-              <tr>
-                <td className="fit pr-2">Type:</td>
-                <td id="detail-probe-type" className="grow">
-                  <a href={getProbeDocumentationURI(probe.type)}>{probe.type}</a>
-                </td>
-              </tr>
-              <tr title="Whether this probe collected on Firefox release or only on prerelease channels.">
-                <td className="fit pr-2">Population:</td>
-                <td id="detail-recording-type" className="grow">{populationLabel}</td>
-              </tr>
-              {getDatasetInfoRow(datasetInfo)}
-            </tbody>
-          </table>
-          <br />
-          <div id="detail-description"><ReactMarkdown source={probeInfo.description} /></div>
-          <br />
-          <table className="table table-sm table-striped table-hover table-bordered border-0">
-            <tbody>
-              <tr>
-                <td className="fit pr-2">Find in:</td>
-                <td className="grow">
-                  {getNewTabLink(`https://dxr.mozilla.org/mozilla-central/search?q=${probe.name}`, 'DXR')},{' '}
-                  {getNewTabLink(`https://searchfox.org/mozilla-central/search?q=${probe.name}`, 'Searchfox')}</td>
-              </tr>
-              <tr>
-                <td className="fit pr-2">Bug numbers:</td>
-                <td id="detail-bug-numbers" className="grow">
-                  {bugs.map(bugNumber => (
-                    <React.Fragment key={bugNumber}>
-                      <a href={`https://bugzilla.mozilla.org/show_bug.cgi?id=${bugNumber}`}>bug {bugNumber}</a>,{' '}
-                    </React.Fragment>
-                  ))}
-                </td>
-              </tr>
-              <tr>
-                <td className="fit pr-2">Recorded in versions:</td>
-                <td id="detail-recording-range" className="grow">
-                  {getFriendlyRecordingRangeForAllChannels(probe.history)}
-                  <p className="experimental-warning">
-                    This was computed from the history object in the JSON below. 
-                    If the range seems incorrect please{' '}
-                    {getNewTabLink('https://github.com/mozilla/probe-dictionary/issues/new', 'file a bug')} with
-                    the probe name and expected range.
-                  </p>
-                </td>
-              </tr>
-              {probeInfo.details.record_into_store && (
-                <tr title="Which stores this probe is recorded in.">
-                  <td className="fit pr-2">Recorded in stores:</td>
-                  <td className="grow">
-                    {probeInfo.details.record_into_store.join(', ')}
-                  </td>
-                </tr>
-              )}
-              {probeInfo.details.record_in_processes && (
-                <tr title="Which processes this probe is recorded in.">
-                  <td className="fit pr-2">Recorded in processes:</td>
-                  <td className="grow">
-                    {probeInfo.details.record_in_processes.join(', ')}
-                  </td>
-                </tr>
-              )}
-              <tr title="The probe will automatically expire in and stop recording in this version. This means that the probe will record at most until the version before that. Note that the code recording it could be removed before that.">
-                <td className="fit pr-2">Expiry:</td>
-                <td id="detail-expiry" className="grow">{getInfoList(expiryText)}</td>
-              </tr>
-              {probeInfo.cpp_guard && (
-                <tr>
-                  <td className="fit pr-2">Preprocessor guard:</td>
-                  <td className="grow">{probeInfo.cpp_guard}</td>
-                </tr>
-              )}
-              {getExtraProbeDetails(probe, probeInfo).map(detail => (
-                <tr key={detail.label}>
-                  <td className="fit pr-2">{detail.label}:</td>
-                  <td className="grow">{detail.content}</td>
-                </tr>
+      <React.Fragment>
+        <div className={activeView !== 'detail' ? 'overlay-mask hidden' : 'overlay-mask'} onClick={doCloseProbeDetails} />
+        
+        <section className={parentClasses.join(' ')} id="probe-detail-view">
+          
+          <header className="probe-details--header">
+            <div>
+              <h2>{probe.name}</h2>
+              <p className="probe-meta-details">
+                <a href={getProbeDocumentationURI(probe.type)}>{probe.type}</a> in 
+                the <span className="probe-details--highlight">{populationLabel}</span> population.
+              </p>
+            </div>
+            <div className="probe-details--recording-range" title={expWarning}>
+              {getFriendlyRecordingRangeForAllChannels(probe.history)}
+            </div>
+          </header>
+          
+          <div className="probe-details--body">
+
+            <div className="probe-details--description">
+              <ReactMarkdown source={probeInfo.description} />
+            </div>
+
+            <footer className="probe-details--footer">
+              <div className="probe-details--expiry">
+                {['nightly', 'beta', 'release'].map(ch => (
+                  <dl className="probe-version-item probe-version-item--compact" key={ch}>
+                    <dt>{ch}</dt>
+                    <dd>{expiryText[ch]}</dd>
+                  </dl>
                 ))}
-              {categoryLabels && (
-                <tr>
-                  <td className="fit pr-2">Labels:</td>
-                  <td className="grow">
-                    <ol start="0" className="cat-labels">
-                      {categoryLabels.map(label => <li key={label}>{label}</li>)}
-                    </ol>
-                  </td>
-                </tr>
-              )}
-              <tr>
-                <td className="fit pr-2">Probe JSON:</td>
-                <td className="grow">
-                  <ReactJSON collapsed={true} src={probe} />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+              </div>
+              
+              <div className="probe-details--extra-info">
+                <div>
+                  <dl className="probe-details--group">
+                    <dt>find this probe in</dt>
+                    <dd>
+                      {getInfoList(datasetInfo)}
+                      {getNewTabLink(`https://dxr.mozilla.org/mozilla-central/search?q=${probe.name}`, 'DXR')},{' '}
+                      {getNewTabLink(`https://searchfox.org/mozilla-central/search?q=${probe.name}`, 'Searchfox')},{' '}
+                      {bugs.map(bugNumber => (
+                        <React.Fragment key={bugNumber}>
+                        <a href={`https://bugzilla.mozilla.org/show_bug.cgi?id=${bugNumber}`}>bug {bugNumber}</a>,{' '}
+                        </React.Fragment>
+                      ))}
+                    </dd>
+                  </dl>
+                  
+                  {probeInfo.details.record_into_store && (
+                    <dl className="probe-details--group">
+                      <dt>stores</dt>
+                      <dd>
+                        {probeInfo.details.record_into_store.join(', ')}
+                      </dd>
+                    </dl>
+                  )}
+                  
+                  {probeInfo.details.record_in_processes && (
+                    <dl className="probe-details--group">
+                      <dt>processes</dt>
+                      <dd>{probeInfo.details.record_in_processes.join(', ')}</dd>
+                    </dl>
+                  )}
+                  
+                  {probeInfo.cpp_guard && (
+                    <dl className="probe-details--group">
+                      <dt>CPP guard</dt>
+                      <dd>{probeInfo.cpp_guard}</dd>
+                    </dl>
+                  )}
+
+                  {categoryLabels && (
+                    <dl className="probe-details--group">
+                      <dt>labels</dt>
+                      <dd>
+                        {categoryLabels.join(', ')}
+                      </dd>
+                    </dl>
+                  )}
+                </div>
+
+                <div>
+                  <ul className="probe-details--list">
+                    {getExtraProbeDetails(probe, probeInfo).map(detail => (
+                      <li key={detail.label}>
+                        {detail.label}: {detail.content}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <dl className="probe-details--group">
+                <dt>JSON</dt>
+                <dd><ReactJSON collapsed={true} src={probe} /></dd>
+              </dl>
+            </footer>
+
+          </div>
+
+          
+          <button className="btn-overlay-close" onClick={doCloseProbeDetails} />
+        </section>
+      </React.Fragment>
     );
   }
 }

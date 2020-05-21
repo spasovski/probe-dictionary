@@ -3,14 +3,14 @@ import SearchResultsRow from './searchResultsRow';
 
 
 const SearchResultsTable = props => (
-  <table id="search-results-table">
+  <table id="search-results-table" className="search-results">
     <thead>
       <tr>
-        <th>probe</th>
-        <th>type</th>
-        <th>population</th>
-        <th>recorded ({props.selectedChannel === 'any' ? 'nightly' : props.selectedChannel})</th>
-        <th>description</th>
+        <th className="search-results--probe-name">probe</th>
+        <th className="search-results--probe-type">type</th>
+        <th className="search-results--probe-population">population</th>
+        <th className="search-results--probe-recorded-in">recorded ({props.selectedChannel === 'any' ? 'nightly' : props.selectedChannel})</th>
+        <th className="search-results--probe-description">description</th>
       </tr>
     </thead>
     <tbody>

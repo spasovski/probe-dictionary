@@ -1,86 +1,59 @@
 import React from 'react';
+import Button from './button';
+import ShortURLControl from './shortURLControl';
 
 
-async function handleShortLinkClick() {
-  const url = 'https://api-ssl.bitly.com/v3/shorten?';
-  // To test this locally either edit your local hosts file or
-  // replace window.location.href with any url string.
-  const params = `longUrl=${encodeURIComponent(window.location.href)}&access_token=48ecf90304d70f30729abe82dfea1dd8a11c4584&format=json`;
-
-  const response = await fetch(url + params);
-  if (response.status !== 200) {
-    console.error(`Bitly API response error. Status Code: ${response.status}`);
-    return;
-  }
-
-  const { data } = await response.json();
-  if (data.url) {
-    const linkInputElm = document.querySelector('.permalink-control input');
-    linkInputElm.value = data.url;
-    linkInputElm.classList.remove('hidden');
-  }
-}
-
-const Navigation = ({doStatsLinkClick, doFindProbesLinkClick, datePublished}) => {
+const Navigation = ({doStatsLinkClick, doResetSearchClick, datePublished}) => {
   let dateString = '';
   if (datePublished) {
     dateString = (new Date(datePublished.lastUpdate)).toDateString();
   }
 
   return (
-    <nav className="navbar navbar-toggleable-md navbar-inverse bg-primary">
-      <button className="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-        <span className="navbar-toggler-icon" />
-      </button>
-      <a className="navbar-brand" href="/">Probe Dictionary</a>
-
-      <div className="collapse navbar-collapse" id="navbarCollapse">
-        <ul className="navbar-nav mr-auto">
-          <li className="nav-item">
-            <button
-              className="btn btn-default btn-find-probes"
-              onClick={doFindProbesLinkClick}
-            >
-              <i className="fa fa-search" /> Find probes <span className="sr-only">(current)</span>
-            </button>
-          </li>
-          <li className="nav-item">
-            <button
-              className="btn btn-default btn-stats"
-              onClick={doStatsLinkClick}
-            >
-              <i className="fa fa-bar-chart" /> Stats
-            </button>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="https://github.com/mozilla/probe-dictionary/issues/new" rel="noopener noreferrer" target="_blank"><i className="fa fa-bug"></i> File a bug</a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="https://telemetry.mozilla.org/"><i className="fa fa-home" /> Telemetry portal</a>
+    <header className="primary-header">
+      <h1><a className="primary-header-main-heading" href="/">Probe Dictionary</a></h1>      
+      <nav>
+        <ul className="primary-navigation-list">
+          <li>
+            <Button
+              doClick={doResetSearchClick}
+              classes={['nav-icon', 'nav-reset-search']}
+              variants={['plain']} label="reset search" />
           </li>
           <li>
-            <div className="permalink-control">
-              <div className="input-group">
-                <span className="input-group-btn">
-                  <button
-                    onClick={handleShortLinkClick}
-                    type="button"
-                    className="btn btn-default"
-                    title="Get Shortlink"
-                  >
-                    <i className="fa fa-link" /> Get Shortlink
-                  </button>
-                </span>
-                <input type="text" className="form-control hidden" />
-              </div>
-            </div>
+            <Button
+              doClick={doStatsLinkClick}
+              classes={['nav-icon', 'nav-stats']}
+              variants={['plain']}
+              label="stats"
+            />
+          </li>
+          <li>
+            <Button 
+              link={{href: 'https://github.com/mozilla/probe-dictionary/issues/new', newTab: true}}
+              label="file a bug"
+              classes={['nav-icon', 'nav-file-bug']}
+              variants={['plain']}
+            />
+          </li>
+          <li>
+            <Button
+              link={{href: 'https://telemetry.mozilla.org/', newTab: true}}
+              label="telemetry portal"
+              classes={['nav-icon', 'nav-telemetry']}
+              variants={['plain']}
+            />
+          </li>
+          <li>
+            <ShortURLControl />
           </li>
         </ul>
-        <div className="navbar-text my-lg-0" id="last-updated">
-          Updated <span>{dateString}</span>
-        </div>
-      </div>
-    </nav>
+      </nav>
+      <dl className="last-updated">
+        <dt>updated</dt>
+        <dd>{dateString}</dd>
+      </dl>
+    </header>
   );
 }
 

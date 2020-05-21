@@ -4,8 +4,6 @@ import Main from './main';
 import * as serviceWorker from './serviceWorker';
 
 // TODO_V1: rm bootstrap and old styling -> redesign the layout.
-import 'bootstrap/dist/css/bootstrap.css';
-import './styles/theme_cosmo.min.css';
 import './styles/index.css';
 
 ReactDOM.render(<Main />, document.getElementById('root'));

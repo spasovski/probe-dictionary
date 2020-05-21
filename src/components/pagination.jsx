@@ -8,7 +8,7 @@ const renderSimplePaginator = (pages, currentPage, doPageChange) => (
   <ul className="paginator">
     {pages.map(page => (
       <li key={page} className={page === currentPage ? 'active' : ''}>
-        <button onClick={() => doPageChange(page)}>{page}</button>
+        <button className="numeric" onClick={() => doPageChange(page)}>{page}</button>
       </li>
     ))}
   </ul>
@@ -16,14 +16,24 @@ const renderSimplePaginator = (pages, currentPage, doPageChange) => (
 
 const renderPrevNextPaginator = (pagesCount, currentPage, doPageChange) => ( 
   <ul className="paginator">
-    <li><button disabled={currentPage === 1 ? 'disabled' : ''} onClick={() => doPageChange(currentPage - 1)}>&lt;</button></li>
+    <li>
+      <button
+        disabled={currentPage === 1 ? 'disabled' : ''}
+        onClick={() => doPageChange(currentPage - 1)}
+      />
+    </li>
     <li><span className="current-page">{currentPage}</span></li>
-    <li><button disabled={currentPage === pagesCount ? 'disabled' : ''} onClick={() => doPageChange(currentPage + 1)}>&gt;</button></li>
+    <li>
+      <button
+        disabled={currentPage === pagesCount ? 'disabled' : ''}
+        onClick={() => doPageChange(currentPage + 1)}
+      />
+    </li>
   </ul>
 );
 
 const Pagination = props => {
-  const {itemsCount, pageSize, currentPage, doPageChange, activeView} = props;
+  const {itemsCount, pageSize, currentPage, doPageChange} = props;
   const pagesCount = Math.ceil(itemsCount / pageSize);
   const pages = [];
 
@@ -36,13 +46,13 @@ const Pagination = props => {
 
   if (pagesCount < PAGE_COUNT_BREAKPOINT) {
     return (
-      <nav aria-label="page navigation" className={activeView === 'default' ? '' : 'hidden'}>
+      <nav aria-label="page navigation">
         {renderSimplePaginator(pages, currentPage, doPageChange)}
       </nav>  
     );
   }
   return (
-    <nav aria-label="page navigation" className={activeView === 'default' ? '' : 'hidden'}>
+    <nav aria-label="page navigation">
       {renderPrevNextPaginator(pagesCount, currentPage, doPageChange)}
     </nav>
   );

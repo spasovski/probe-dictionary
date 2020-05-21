@@ -307,10 +307,19 @@ class Main extends Component {
     this.setState(newState);
   }
 
+  toggleOverlay(show) {
+    if (show) {
+      document.body.classList.add('overlay-active');
+    } else {
+      document.body.classList.remove('overlay-active');
+    }
+  }
+
   handleExposeProbeDetails = (probeId, probe) => {
     if (!probe) {
       probe = this.state.probes[probeId];
     }
+    this.toggleOverlay(true);
     console.log('exposing probe details:', probe);
     this.setState({
       activeView: VIEWS.detail,
@@ -330,6 +339,7 @@ class Main extends Component {
     } else {
       this.setState({activeView: VIEWS.default});
     }
+    this.toggleOverlay();
     updateURI([{[PARAMS.view]: null}, {[PARAMS.probeId]: null}, {[PARAMS.channel]: null}]);
   }
 
@@ -454,31 +464,38 @@ class Main extends Component {
 
       <Navigation
         doStatsLinkClick={this.handleStatsLinkClick}
-        doFindProbesLinkClick={this.handleResetToDefaultView}
+        doResetSearchClick={this.handleResetToDefaultView}
         datePublished={this.generalDataFetch}
       />
+      
+      <SearchForm
+        versions={this.state.versions}
+        channels={CHANNELS}
+        showReleaseOnly={this.state.showReleaseOnly}
 
-      <div className="controls">
-        <SearchForm
-          versions={this.state.versions}
-          channels={CHANNELS}
-          showReleaseOnly={this.state.showReleaseOnly}
+        doChannelChange={this.handleChannelChange}
+        doShowReleaseOnlyChange={this.handleShowReleaseOnlyChange}
+        doProbeConstraintChange={this.handleProbeConstraintChange}
+        doVersionChange={this.handleVersionChange}
+        doSearchConstraintChange={this.handleSearchConstraintChange}
+        activeView={this.state.activeView}
+        doUpdateSearchResults={this.updateSearchResults}
+        doUpdateURI={updateURI}
 
-          doChannelChange={this.handleChannelChange}
-          doShowReleaseOnlyChange={this.handleShowReleaseOnlyChange}
-          doProbeConstraintChange={this.handleProbeConstraintChange}
-          doVersionChange={this.handleVersionChange}
-          doSearchConstraintChange={this.handleSearchConstraintChange}
+        selectedChannel={this.state.selectedChannel}
+        selectedSearchConstraint={this.state.selectedSearchConstraint}
+        selectedProbeConstraint={this.state.selectedProbeConstraint}
+        selectedVersion={this.state.selectedVersion}
+      />
+      
+      <div className="search-results-info">
+        <SearchCounter
+          probesCount={this.state.probesCount}
+          pageSize={this.state.pageSize}
+          currentPage={this.state.currentPage}
           activeView={this.state.activeView}
-          doUpdateSearchResults={this.updateSearchResults}
-          doUpdateURI={updateURI}
-
-          selectedChannel={this.state.selectedChannel}
-          selectedSearchConstraint={this.state.selectedSearchConstraint}
-          selectedProbeConstraint={this.state.selectedProbeConstraint}
-          selectedVersion={this.state.selectedVersion}
         />
-        
+
         <Pagination
           itemsCount={this.state.probesCount}
           currentPage={this.state.currentPage}
@@ -486,7 +503,6 @@ class Main extends Component {
           doPageChange={this.handlePageChange}
           activeView={this.state.activeView}
         />
-
       </div>
 
       <ProbeDetails
@@ -506,19 +522,11 @@ class Main extends Component {
         revisions={this.revisionsDataFetch}
         dataInitialized={this.state.dataInitialized}
         activeView={this.state.activeView}
-      />
-
-      <SearchCounter
-        probesCount={this.state.probesCount}
-        pageSize={this.state.pageSize}
-        currentPage={this.state.currentPage}
-        activeView={this.state.activeView}
+        doCloseStatsOverlay={this.handleResetToDefaultView}
       />
 
       <SearchResults
-        channelInfo={this.state.channelInfo}
         probes={this.state.probes}
-        revisions={this.revisionsDataFetch}
         selectedChannel={this.state.selectedChannel}
         dataInitialized={this.state.dataInitialized}
         doExposeProbeDetails={this.handleExposeProbeDetails}

@@ -33,17 +33,17 @@ const SearchResultsRow = ({
   // TODO: What happens with undefined history? Affects description and population.
   return (
     <tr onClick={() => doExposeProbeDetails(probeId, rowData)}>
-      <td className="search-results-field-name">{rowData.name}</td>
-      <td className="search-results-field-type">{rowData.type}</td>
-      <td className="search-results-field-population"
+      <td className="search-results--probe-name">{rowData.name}</td>
+      <td className="search-results--probe-type">{rowData.type}</td>
+      <td className="search-results--probe-population"
           title="Whether this probe collected on Firefox release or only on prerelease channels.">
         {getPopulation(history)}
       </td>
-      <td className="search-results-field-recorded"
+      <td className="search-results--probe-recorded-in"
           title="What versions this probe is actually recorded in. This depends on when the probe was added, removed and its expiry.">
         {recordingRange}
       </td>
-      <td className="search-results-field-description">{history ? history[0].description : ''}</td>
+      <td className="search-results--probe-description">{history ? history[0].description : ''}</td>
     </tr>
   );
 }

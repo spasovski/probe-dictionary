@@ -1,14 +1,15 @@
 import React from 'react';
 import SelectElement from './selectElement';
 import SelectVersionElement from './selectVersionElement';
+import PrettyCheckbox from './prettyCheckbox';
 
 
 const ProbeFilters = props => {
   const channels = [props.channels.default, ...props.channels.valid];
   return (
     <div id="probe-filters">
-      <div className="form-row form-inline">
-        Filter for probes
+      <div className="probe-filter-controls">
+        Filter for 
         <SelectElement
           value={props.selectedProbeConstraint}
           elementId="select_constraint"
@@ -19,8 +20,8 @@ const ProbeFilters = props => {
           ]}
           onChange={props.doProbeConstraintChange}
         />
-        <div id="version-selection-element">
-          in version
+        probes in
+        <div id="version-selection-element"> 
           <SelectVersionElement
             value={props.selectedVersion}
             elementId="select_version"
@@ -28,25 +29,23 @@ const ProbeFilters = props => {
             onChange={props.doVersionChange}
           />
         </div>
-        on channel
+        version on 
         <SelectElement
           value={props.selectedChannel}
           elementId="select_channel"
           onChange={props.doChannelChange}
           items={channels.map(channel => {return {label: channel, value: channel};})}
         />
-        .
+        channel
       </div>
-      <div className="form-row form-inline mt-2" id="optout-selection-element">
-        <input
-          className="form-control form-control-sm mr-1"
-          disabled={props.selectedChannel === 'release'}
-          onChange={props.doShowReleaseOnlyChange}
-          checked={props.showReleaseOnly}
-          id="optout"
-          type="checkbox"
+      <div id="optout-selection-element" className="release-only-control">
+        <PrettyCheckbox
+          isDisabled={props.selectedChannel === 'release'}
+          classes={props.selectedChannel === 'release' ? ['disabled'] : []}
+          doChange={props.doShowReleaseOnlyChange}
+          isChecked={props.showReleaseOnly}
+          label="release measurements only"
         />
-        <label htmlFor="optout">Show only measurements collected on release.</label>
       </div>
     </div>
   );

@@ -176,7 +176,7 @@ export function getVersionRangeFromHistory(history, channel) {
     const first = getVersionOrRevisionValue(entry, 'first');
     const last = getVersionOrRevisionValue(entry, 'last');
     
-    if (channel === 'release' && entry.optout || channel !== 'release') {
+    if ((channel === 'release' && entry.optout) || (channel !== 'release')) {
       ranges.push({first, last, expiry});
     }
   });
